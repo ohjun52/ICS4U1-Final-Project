@@ -10,7 +10,7 @@ public class Character
 {
 	private PApplet p;
 	private Property property;
-	
+		
 	public Character(PApplet p, int HP, int SP)
 	{
         this.p = p;

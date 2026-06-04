@@ -11,7 +11,8 @@ import game_main.GameMain;
  *
  * @author ohjun
  */
-public class Page {
+public class Page 
+{
     public PApplet p;
     private PImage backgroundImage;
     private List<Button> buttons;

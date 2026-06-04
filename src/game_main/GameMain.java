@@ -1,6 +1,7 @@
 package game_main;
 
 import processing.core.PApplet;
+import pages.implement.*;
 
 public class GameMain extends PApplet {
 	
@@ -11,7 +12,10 @@ public class GameMain extends PApplet {
 		TITLE, START, TUTORIAL, BATTLE, END, EXIT
     }
 	public static Gamestate currentState = Gamestate.TITLE;
-
+		
+	private TitlePage titlePage;
+	private StartPage startPage;
+	
 	@Override
     public void settings() 
 	{
@@ -19,7 +23,7 @@ public class GameMain extends PApplet {
         fullScreen();
 		
         // Alternatively, use size(1920, 1080) if you want a specific window size
-        // size(1920, 1080);
+        size(1920, 1080);
 		
 		noSmooth();
     }
@@ -28,7 +32,10 @@ public class GameMain extends PApplet {
     public void setup() 
 	{
         // Lock the frame rate to 60 FPS
-        frameRate(GAME_FRAME);		
+        frameRate(GAME_FRAME);
+		
+		titlePage = new TitlePage(this);
+		startPage = new StartPage(this);
     }
 
 	@Override
@@ -41,10 +48,10 @@ public class GameMain extends PApplet {
 		switch(currentState)
 		{
 			case TITLE:
-				
+				titlePage.run();
 				break;
 			case START:
-				
+				startPage.run();
 				break;
 			case TUTORIAL:
 				
@@ -61,10 +68,33 @@ public class GameMain extends PApplet {
 		}
     }
 	
+	@Override
+	public void mouseReleased() {
+		if (mouseButton == LEFT) {
+			switch (currentState) {
+				case TITLE:
+					titlePage.getMouseReleased();
+					break;
+				case START:
+					startPage.getMouseReleased();
+					break;
+				case TUTORIAL:
+					
+					break;
+				case END:
+					
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * @param args the command line arguments
 	 */
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+	{
         PApplet.main("game_main.GameMain");
     }
 }

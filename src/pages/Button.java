@@ -12,7 +12,8 @@ public class Button
     private float x, y, width, height;
     private String label;
 
-    public Button(float x, float y, float width, float height, String label) {
+    public Button(float x, float y, float width, float height, String label)
+	{
         this.x = x;
         this.y = y;
         this.width = width;
@@ -20,11 +21,15 @@ public class Button
         this.label = label;
     }
 
-    public void draw(PApplet p) {
+    public void draw(PApplet p)
+	{
         // Check if mouse is hovering over the button for visual feedback
-        if (isMouseOver(p.mouseX, p.mouseY)) {
+        if(isMouseOver(p.mouseX, p.mouseY)) 
+		{
             p.fill(200); // Lighter gray on hover
-        } else {
+        }
+		else 
+		{
             p.fill(100); // Darker gray default
         }
         
@@ -35,15 +40,18 @@ public class Button
         p.fill(0); // Black text
         p.textAlign(PApplet.CENTER, PApplet.CENTER);
         p.textSize(20);
+		
         // Center text based on button position and size
         p.text(label, x + width / 2, y + height / 2);
     }
 
-    public boolean isMouseOver(float mx, float my) {
+    public boolean isMouseOver(float mx, float my)
+	{
         return mx >= x && mx <= x + width && my >= y && my <= y + height;
     }
 	
-	public String getLable(){
+	public String getLable()
+	{
 		return this.label;
 	}
 }
