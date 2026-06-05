@@ -1,50 +1,46 @@
 package game_main;
 
 import processing.core.PApplet;
+
 import pages.implement.*;
+import battle.Battle;
 
 public class GameMain extends PApplet {
-	
+
 	final static public int GAME_FRAME = 60;
-	
-	public static enum Gamestate 
+
+	public static enum Gamestate
 	{
 		TITLE, START, TUTORIAL, BATTLE, END, EXIT
     }
 	public static Gamestate currentState = Gamestate.TITLE;
-		
+
 	private TitlePage titlePage;
 	private StartPage startPage;
-	
+	private Battle battle;
+
 	@Override
-    public void settings() 
+    public void settings()
 	{
-        // Set the window to fullscreen mode
         fullScreen();
-		
-        // Alternatively, use size(1920, 1080) if you want a specific window size
-        size(1920, 1080);
-		
+        // size(1920, 1080);
 		noSmooth();
     }
 
 	@Override
-    public void setup() 
+    public void setup()
 	{
-        // Lock the frame rate to 60 FPS
         frameRate(GAME_FRAME);
 		
 		titlePage = new TitlePage(this);
 		startPage = new StartPage(this);
+		battle = new Battle(this);
     }
 
 	@Override
     public void draw()
 	{
-        // Clear the screen with a black background every frame
         background(0);
-        
-        // Game logic and rendering will be added here later
 		switch(currentState)
 		{
 			case TITLE:
@@ -54,20 +50,21 @@ public class GameMain extends PApplet {
 				startPage.run();
 				break;
 			case TUTORIAL:
-				
+
 				break;
 			case BATTLE:
-				
+				battle.update();
+				battle.draw();
 				break;
 			case END:
-				
+
 				break;
 			case EXIT:
 				exit();
 				break;
 		}
     }
-	
+
 	@Override
 	public void mouseReleased() {
 		if (mouseButton == LEFT) {
@@ -79,21 +76,18 @@ public class GameMain extends PApplet {
 					startPage.getMouseReleased();
 					break;
 				case TUTORIAL:
-					
+
 					break;
 				case END:
-					
+
 					break;
 				default:
 					break;
 			}
 		}
 	}
-	
-	/**
-	 * @param args the command line arguments
-	 */
-    public static void main(String[] args) 
+
+    public static void main(String[] args)
 	{
         PApplet.main("game_main.GameMain");
     }
