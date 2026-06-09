@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 public class Road
 {
-	final static private int LANE_COUNT = 5;					// 轨道数量
+	final static public int LANE_COUNT = 5;					// 轨道数量
 	final static private float INITIAL_DIFFICULTY = 1.0f;		// 初始难度系数
 	final static private float DIFFICULTY_RATE = 0.002f;		// 难度增长速度（每帧）
 	final static private float BASE_SPAWN_INTERVAL = 60;		// 基础生成间隔（帧）
@@ -18,16 +18,14 @@ public class Road
 
 	private PApplet p;
 	private float laneWidth;
-	private float screenHeight;
 	private ArrayDeque<Obstacle> obstacles;
 	private float spawnTimer;
 	private float difficulty;
 
-	public Road(PApplet p, float screenWidth, float screenHeight)
+	public Road(PApplet p)
 	{
 		this.p = p;
-		this.screenHeight = screenHeight;
-		this.laneWidth = screenWidth / LANE_COUNT;
+		this.laneWidth = p.width / LANE_COUNT;
 		this.obstacles = new ArrayDeque<>();
 		this.spawnTimer = 0;
 		this.difficulty = INITIAL_DIFFICULTY;
@@ -52,7 +50,7 @@ public class Road
 		{
 			Obstacle o = it.next();
 			o.move();
-			if (o.isOffScreen(screenHeight))
+			if (o.isOffScreen(p.height))
 			{
 				it.remove();
 			}

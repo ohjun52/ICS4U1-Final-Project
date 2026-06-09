@@ -66,6 +66,18 @@ public class GameMain extends PApplet {
     }
 
 	@Override
+	public void keyReleased()
+	{
+		if (currentState == Gamestate.BATTLE)
+		{
+			if (key >= '1' && key <= '5')
+			{
+				battle.setPlayerLane(key - '1');
+			}
+		}
+	}
+
+	@Override
 	public void mouseReleased() {
 		if (mouseButton == LEFT) {
 			switch (currentState) {

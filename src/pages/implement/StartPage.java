@@ -29,6 +29,6 @@ public class StartPage extends Page
 	public void getMouseReleased()
 	{
 		if(this.handleMouseReleased().equals("CONTINUE"))
-			this.changeGameStatus(GameMain.Gamestate.EXIT);
+			GameMain.currentState = GameMain.Gamestate.EXIT;
 	}
 }
