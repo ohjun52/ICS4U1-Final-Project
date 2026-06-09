@@ -89,12 +89,12 @@ public class PlayerAnimation
 			if (state == MOVING)
 			{
 				int sx = currentFrame * moveFrameWidth;
-				p.image(moveSheet, x, y, w, h, sx, 0, moveFrameWidth, moveFrameHeight);
+				p.image(moveSheet, x, y, w, h, sx, 0, sx + moveFrameWidth, moveFrameHeight);
 			}
 			else
 			{
 				int sx = currentFrame * idleFrameWidth;
-				p.image(idleSheet, x, y, w, h, sx, 0, idleFrameWidth, idleFrameHeight);
+				p.image(idleSheet, x, y, w, h, sx, 0, sx + idleFrameWidth, idleFrameHeight);
 			}
 		}
 		else

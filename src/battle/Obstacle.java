@@ -4,6 +4,9 @@ import processing.core.PApplet;
 
 public class Obstacle
 {
+	final static private float COLLISION_WIDTH_RATIO = 0.6f;		// 碰撞箱宽度占显示宽度比例
+	final static private float COLLISION_HEIGHT_RATIO = 1f;	// 碰撞箱高度占显示高度比例
+
 	private PApplet p;
 	private float w, h;
 	private float x, y;
@@ -38,22 +41,22 @@ public class Obstacle
 
 	public float getX()
 	{
-		return x;
+		return x + (w - w * COLLISION_WIDTH_RATIO) / 2;
 	}
 
 	public float getY()
 	{
-		return y;
+		return y + (h - h * COLLISION_HEIGHT_RATIO) / 2;
 	}
 
 	public float getW()
 	{
-		return w;
+		return w * COLLISION_WIDTH_RATIO;
 	}
 
 	public float getH()
 	{
-		return h;
+		return h * COLLISION_HEIGHT_RATIO;
 	}
 
 	public void setSpeed(float speed)
