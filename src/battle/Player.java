@@ -7,7 +7,7 @@ public class Player
 	final static private int WIND_UP_FRAMES = 8;
 	final static private int RECOVERY_FRAMES = 6;
 
-	final static private float WIDTH_RATIO = 0.50f;		// 显示宽度占轨道宽度比例
+	final static private float WIDTH_RATIO = 0.70f;		// 显示宽度占轨道宽度比例
 	final static private float HEIGHT_RATIO = 0.2f;			// 显示高度占屏幕高度比例
 	final static private float BOTTOM_MARGIN_RATIO = 0.05f;		// 底部边距占屏幕高度比例
 	final static private float COLLISION_WIDTH_RATIO = 0.5f;	// 碰撞箱宽度占显示宽度比例

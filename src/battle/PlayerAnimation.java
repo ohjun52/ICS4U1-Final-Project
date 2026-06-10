@@ -10,10 +10,10 @@ public class PlayerAnimation
 
 	final static private String IDLE_PATH = "animations/run.png";
 	final static private int IDLE_FRAMES = 12;
-	final static private String MOVE_PATH = "animations/run.png";
-	final static private int MOVE_FRAMES = 3;
+	final static private String MOVE_PATH = "animations/move.png";
+	final static private int MOVE_FRAMES = 61;
 
-	final static private int FRAME_DELAY = 6;
+	final static private int FRAME_DELAY = 4;
 
 	private PApplet p;
 	private PImage idleSheet;
@@ -40,8 +40,7 @@ public class PlayerAnimation
 		{
 			idleSheet = p.loadImage(IDLE_PATH);
 			moveSheet = p.loadImage(MOVE_PATH);
-			if (idleSheet != null && moveSheet != null
-				&& idleSheet.width > 0 && moveSheet.width > 0)
+			if (idleSheet != null && moveSheet != null && idleSheet.width > 0 && moveSheet.width > 0)
 			{
 				hasImages = true;
 				idleFrameWidth = idleSheet.width / IDLE_FRAMES;

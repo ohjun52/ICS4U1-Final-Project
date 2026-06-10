@@ -12,7 +12,7 @@ import pages.*;
  */
 public class StartPage extends Page
 {
-	static final String BACKGROUND_PATH = "";
+	static final String BACKGROUND_PATH = "123";
 	
 	public StartPage(PApplet p)
 	{ 
@@ -29,6 +29,6 @@ public class StartPage extends Page
 	public void getMouseReleased()
 	{
 		if(this.handleMouseReleased().equals("CONTINUE"))
-			GameMain.currentState = GameMain.Gamestate.EXIT;
+			GameMain.currentState = GameMain.Gamestate.BATTLE;
 	}
 }

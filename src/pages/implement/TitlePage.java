@@ -29,7 +29,7 @@ public class TitlePage extends Page
 	public void getMouseReleased()
 	{
 		if(this.handleMouseReleased().equals("START"))
-			GameMain.currentState = GameMain.Gamestate.BATTLE;
+			GameMain.currentState = GameMain.Gamestate.START;
 		if(this.handleMouseReleased().equals("EXIT"))
 			GameMain.currentState = GameMain.Gamestate.EXIT;
 	}

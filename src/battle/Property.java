@@ -2,8 +2,6 @@ package battle;
 
 public class Property
 {
-	private final static int INVINCIBLE_FRAMES = 90;		// 无敌帧数
-
 	private int HP;
 	private int SH;
 	private int invincibleTimer;
@@ -19,6 +17,11 @@ public class Property
 	{
 		if (invincibleTimer > 0) invincibleTimer--;
 	}
+	
+	public void setINVICIBLE(int frame)
+	{
+		if(invincibleTimer <= 0) invincibleTimer = frame;
+	}
 
 	public void calculateDamage(int damage)
 	{
@@ -33,7 +36,6 @@ public class Property
 			SH = 0;
 			HP -= remainingDamage;
 		}
-		invincibleTimer = INVINCIBLE_FRAMES;
 	}
 
 	public boolean isInvincible()
