@@ -4,14 +4,18 @@ import processing.core.PApplet;
 
 public class Player
 {
-	final static private int WIND_UP_FRAMES = 8;
-	final static private int RECOVERY_FRAMES = 6;
+	final static private int WIND_UP_FRAMES = 10;
+	final static private int RECOVERY_FRAMES = 10;
 
-	final static private float WIDTH_RATIO = 0.70f;		// 显示宽度占轨道宽度比例
-	final static private float HEIGHT_RATIO = 0.2f;			// 显示高度占屏幕高度比例
+	final static private float WIDTH_RATIO = 0.75f;				// 显示宽度占轨道宽度比例
+	final static private float HEIGHT_RATIO = 0.25f;			// 显示高度占屏幕高度比例
+	
+	final static private float COLLISION_WIDTH_RATIO = 0.7f;	// 碰撞箱宽度占显示宽度比例
+	final static private float COLLISION_HEIGHT_RATIO = 0.4f;	// 碰撞箱高度占显示高度比例
+	
 	final static private float BOTTOM_MARGIN_RATIO = 0.05f;		// 底部边距占屏幕高度比例
-	final static private float COLLISION_WIDTH_RATIO = 0.5f;	// 碰撞箱宽度占显示宽度比例
-	final static private float COLLISION_HEIGHT_RATIO = 0.8f;	// 碰撞箱高度占显示高度比例
+		
+	final static private int PARRY_INVINCIBLE_FRAMES = 180;
 
 	final static private int INITIAL_HP = 100;
 	final static private int INITIAL_SP = 0;
@@ -90,8 +94,26 @@ public class Player
 	public float getY() { return displayY + (displayH - displayH * COLLISION_HEIGHT_RATIO) / 2; }
 	public float getW() { return displayW * COLLISION_WIDTH_RATIO; }
 	public float getH() { return displayH * COLLISION_HEIGHT_RATIO; }
+	
+	public int getLane() { return lane; }
 	public int getHP() { return property.getHP(); }
 	public int getSH() { return property.getSH(); }
+	
+	public void setInvicible()
+	{
+		property.setInvicible(PARRY_INVINCIBLE_FRAMES);
+	}
+
+	// 调试：碰撞箱+血量护甲
+	public void drawDebug(PApplet p)
+	{
+		p.noFill();
+		p.stroke(0, 255, 0);
+		p.rect(getX(), getY(), getW(), getH());
+		p.fill(255);
+		p.textSize(24);
+		p.text("HP:" + property.getHP() + " SH:" + property.getSH(), 100, 100);
+	}
 
 	public void draw()
 	{

@@ -19,7 +19,7 @@ public class Battle
 	{
 		road.update();
 		player.update();
-		if (road.checkCollision(player.getX(), player.getY(), player.getW(), player.getH()))
+		if (road.checkCollision(player.getLane(), player.getX(), player.getY(), player.getW(), player.getH()))
 		{
 			player.takeDamage(10);
 		}
@@ -30,6 +30,18 @@ public class Battle
 		p.background(0);
 		road.draw();
 		player.draw();
+		
+		// 调试渲染
+		road.drawDebug();
+		player.drawDebug(p);
+	}
+
+	public void playerParry()
+	{
+		if (road.checkParry(player.getLane(), player.getX(), player.getY(), player.getW(), player.getH()))
+		{
+			player.setInvicible();
+		}
 	}
 
 	public void setPlayerLane(int lane)

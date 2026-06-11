@@ -18,7 +18,7 @@ public class Property
 		if (invincibleTimer > 0) invincibleTimer--;
 	}
 	
-	public void setINVICIBLE(int frame)
+	public void setInvicible(int frame)
 	{
 		if(invincibleTimer <= 0) invincibleTimer = frame;
 	}

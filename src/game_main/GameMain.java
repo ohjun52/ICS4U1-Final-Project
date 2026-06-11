@@ -23,7 +23,7 @@ public class GameMain extends PApplet {
     public void settings()
 	{
         fullScreen();
-        // size(1920, 1080);
+        size(1920, 1080);
 		noSmooth();
     }
 
@@ -73,6 +73,10 @@ public class GameMain extends PApplet {
 			if (key >= '1' && key <= '5')
 			{
 				battle.setPlayerLane(key - '1');
+			}
+			else if (key == ' ')
+			{
+				battle.playerParry();
 			}
 		}
 	}
