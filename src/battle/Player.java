@@ -15,7 +15,6 @@ public class Player
 	
 	final static private float BOTTOM_MARGIN_RATIO = 0.05f;		// 底部边距占屏幕高度比例
 		
-	final static private int PARRY_INVINCIBLE_FRAMES = 180;
 
 	final static private int INITIAL_HP = 100;
 	final static private int INITIAL_SP = 0;
@@ -36,7 +35,7 @@ public class Player
 		float sw = p.width;
 		float sh = p.height;
 
-		laneWidth = sw / Road.LANE_COUNT;
+		laneWidth = sw / GameConfig.LANE_COUNT;
 		displayW = laneWidth * WIDTH_RATIO;
 		displayH = sh * HEIGHT_RATIO;
 
@@ -51,7 +50,7 @@ public class Player
 
 	public void setLane(int lane)
 	{
-		if (lane >= 0 && lane < Road.LANE_COUNT && actionTimer == 0)
+		if (lane >= 0 && lane < GameConfig.LANE_COUNT && actionTimer == 0)
 		{
 			pendingLane = lane;
 			actionTimer = WIND_UP_FRAMES + RECOVERY_FRAMES;
@@ -80,9 +79,10 @@ public class Player
 		animation.update();
 	}
 
-	public void takeDamage(int damage)
+	public void takeDamage(int damage, int invincibleFrames)
 	{
 		property.calculateDamage(damage);
+		property.setInvicible(invincibleFrames);
 	}
 
 	public boolean isDead()
@@ -99,9 +99,9 @@ public class Player
 	public int getHP() { return property.getHP(); }
 	public int getSH() { return property.getSH(); }
 	
-	public void setInvicible()
+	public void setInvicible(int frames)
 	{
-		property.setInvicible(PARRY_INVINCIBLE_FRAMES);
+		property.setInvicible(frames);
 	}
 
 	// 调试：碰撞箱+血量护甲

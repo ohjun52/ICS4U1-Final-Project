@@ -6,10 +6,10 @@ import processing.core.PImage;
 public class Obstacle
 {
 	final static private String IMAGE_PREFIX = "animations/obstacles/obstacle_";
-	final static private int IMAGE_COUNT = 3;
+	final static private int IMAGE_COUNT = 5;
 	
-	final static private float COLLISION_WIDTH_RATIO = 0.6f;		// 碰撞箱宽度占显示宽度比例
-	final static private float COLLISION_HEIGHT_RATIO = 1f;		// 碰撞箱高度占显示高度比例
+	final static private float COLLISION_WIDTH_RATIO = 1f;		// 碰撞箱宽度占显示宽度比例
+	final static private float COLLISION_HEIGHT_RATIO = 0.7f;		// 碰撞箱高度占显示高度比例
 	final static private float PARRY_WIDTH_RATIO = 0.8f;		// 跨跃判定宽度占显示宽度比例
 	final static private float PARRY_HEIGHT_RATIO = 0.2f;		// 跨跃判定高度占显示高度比例（障碍物上方窄带）
 
@@ -39,14 +39,9 @@ public class Obstacle
 			obstacleImgs = new PImage[IMAGE_COUNT];
 			for (int i = 0; i < IMAGE_COUNT; i++)
 			{
-				try
-				{
-					obstacleImgs[i] = p.loadImage(IMAGE_PREFIX + i + ".png");
-				}
-				catch (Exception e)
-				{
-					obstacleImgs[i] = null;
-				}
+				String path = IMAGE_PREFIX + i + ".png";
+				try { obstacleImgs[i] = p.loadImage(path); }
+				catch (Exception e) { System.err.println("Failed to load: " + path); obstacleImgs[i] = null; }
 			}
 		}
 
@@ -115,6 +110,11 @@ public class Obstacle
 	public float getParryH()
 	{
 		return h * PARRY_HEIGHT_RATIO;
+	}
+
+	public int framesToPass(float playerCollisionH)
+	{
+		return speed > 0 ? (int)((playerCollisionH + getH()) / speed) : 0;
 	}
 
 	public void parry()

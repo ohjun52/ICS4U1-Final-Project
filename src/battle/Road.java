@@ -6,15 +6,14 @@ import java.util.Iterator;
 
 public class Road
 {
-	final static public int LANE_COUNT = 5;						// 轨道数量
-	final static private float INITIAL_DIFFICULTY = 1.0f;		// 初始难度系数
-	final static private float DIFFICULTY_RATE = 0.002f;		// 难度增长速度（每帧）
-	final static private float BASE_SPAWN_INTERVAL = 60;		// 基础生成间隔（帧）
-	final static private float MIN_SPAWN_INTERVAL = 15;			// 最小生成间隔（帧）
-	final static private float BASE_OBSTACLE_HEIGHT = 30;		// 基础障碍物高度
-	final static private float HEIGHT_SCALE = 15;				// 障碍物高度随难度增长系数
-	final static private float BASE_SPEED = 5;					// 基础下落速度
-	final static private float SPEED_SCALE = 0.5f;				// 速度随难度增长系数
+	final static private float INITIAL_DIFFICULTY = 1.0f;
+	final static private float DIFFICULTY_RATE = 0.002f;
+	final static private float BASE_SPAWN_INTERVAL = 60;
+	final static private float MIN_SPAWN_INTERVAL = 15;
+	final static private float BASE_OBSTACLE_HEIGHT = 30;
+	final static private float HEIGHT_SCALE = 15;
+	final static private float BASE_SPEED = 5;
+	final static private float SPEED_SCALE = 0.5f;
 
 	private PApplet p;
 	private ArrayDeque<Obstacle>[] lanes;
@@ -22,13 +21,14 @@ public class Road
 
 	private float spawnTimer;
 	private float difficulty;
-	
+
+	@SuppressWarnings("unchecked")
 	public Road(PApplet p)
 	{
 		this.p = p;
-		this.laneWidth = p.width / LANE_COUNT;
-		this.lanes = new ArrayDeque[LANE_COUNT];
-		for (int i = 0; i < LANE_COUNT; i++)
+		this.laneWidth = p.width / GameConfig.LANE_COUNT;
+		this.lanes = new ArrayDeque[GameConfig.LANE_COUNT];
+		for (int i = 0; i < GameConfig.LANE_COUNT; i++)
 			lanes[i] = new ArrayDeque<>();
 		this.spawnTimer = 0;
 		this.difficulty = INITIAL_DIFFICULTY;
@@ -48,7 +48,7 @@ public class Road
 			addObstacle();
 		}
 
-		for (int i = 0; i < LANE_COUNT; i++)
+		for (int i = 0; i < GameConfig.LANE_COUNT; i++)
 		{
 			Iterator<Obstacle> it = lanes[i].iterator();
 			while (it.hasNext())
@@ -63,7 +63,7 @@ public class Road
 
 	private void addObstacle()
 	{
-		int lane = (int) (Math.random() * LANE_COUNT);
+		int lane = (int) (Math.random() * GameConfig.LANE_COUNT);
 		float x = lane * laneWidth;
 		float w = laneWidth;
 		float h = BASE_OBSTACLE_HEIGHT + difficulty * HEIGHT_SCALE;
@@ -71,42 +71,45 @@ public class Road
 		lanes[lane].add(new Obstacle(p, w, h, x, speed));
 	}
 
-	public void draw()
+	public int checkCollision(Player player)
 	{
-		for (int i = 0; i < LANE_COUNT; i++)
-			for (Obstacle o : lanes[i])
-				o.draw();
-	}
-
-	// 调试：所有障碍物碰撞箱+跨跃区
-	public void drawDebug()
-	{
-		for (int i = 0; i < LANE_COUNT; i++)
-			for (Obstacle o : lanes[i])
-				o.drawDebug();
-	}
-
-	public boolean checkCollision(int lane, float px, float py, float pw, float ph)
-	{
+		int lane = player.getLane();
 		Obstacle o = lanes[lane].peekFirst();
-		if (o == null) return false;
-		return rectOverlap(px, py, pw, ph, o.getX(), o.getY(), o.getW(), o.getH());
+		if (o == null) return 0;
+		if (rectOverlap(player.getX(), player.getY(), player.getW(), player.getH(), o.getX(), o.getY(), o.getW(), o.getH()))
+			return o.framesToPass(player.getH());
+		return 0;
 	}
 
-	public boolean checkParry(int lane, float px, float py, float pw, float ph)
+	public int checkParry(Player player)
 	{
+		int lane = player.getLane();
 		Obstacle o = lanes[lane].peekFirst();
-		if (o == null || o.isParried()) return false;
-		if (rectOverlap(px, py, pw, ph, o.getParryX(), o.getParryY(), o.getParryW(), o.getParryH()))
+		if (o == null || o.isParried()) return 0;
+		if (rectOverlap(player.getX(), player.getY(), player.getW(), player.getH(), o.getParryX(), o.getParryY(), o.getParryW(), o.getParryH()))
 		{
 			o.parry();
-			return true;
+			return o.framesToPass(player.getH());
 		}
-		return false;
+		return 0;
 	}
 
 	private boolean rectOverlap(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 	{
 		return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+	}
+
+	public void draw()
+	{
+		for (int i = 0; i < GameConfig.LANE_COUNT; i++)
+			for (Obstacle o : lanes[i])
+				o.draw();
+	}
+
+	public void drawDebug()
+	{
+		for (int i = 0; i < GameConfig.LANE_COUNT; i++)
+			for (Obstacle o : lanes[i])
+				o.drawDebug();
 	}
 }

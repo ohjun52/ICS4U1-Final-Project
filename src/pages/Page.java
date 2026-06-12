@@ -31,7 +31,7 @@ public class Page
         } 
 		catch (Exception e) 
 		{
-            System.out.println("Failed to load background: " + image_path);
+            System.err.println("Failed to load background: " + image_path);
         }
     }
 

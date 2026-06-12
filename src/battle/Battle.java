@@ -1,16 +1,23 @@
 package battle;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Battle
 {
+	final static private String BACKGROUND_PATH = "background/battle_background.png";
+
 	private PApplet p;
+	private PImage background;
+	
 	private Road road;
 	private Player player;
 
 	public Battle(PApplet p)
 	{
 		this.p = p;
+		try { this.background = p.loadImage(BACKGROUND_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + BACKGROUND_PATH); this.background = null; }
 		this.road = new Road(p);
 		this.player = new Player(p);
 	}
@@ -19,18 +26,21 @@ public class Battle
 	{
 		road.update();
 		player.update();
-		if (road.checkCollision(player.getLane(), player.getX(), player.getY(), player.getW(), player.getH()))
+		int collisionFrames = road.checkCollision(player);
+		if(collisionFrames > 0)
 		{
-			player.takeDamage(10);
+			player.takeDamage(10, collisionFrames);
 		}
 	}
 
 	public void draw()
 	{
-		p.background(0);
+		if(background != null) p.image(background, 0, 0, p.width, p.height);
+		else p.background(0);
+
 		road.draw();
 		player.draw();
-		
+
 		// 调试渲染
 		road.drawDebug();
 		player.drawDebug(p);
@@ -38,9 +48,10 @@ public class Battle
 
 	public void playerParry()
 	{
-		if (road.checkParry(player.getLane(), player.getX(), player.getY(), player.getW(), player.getH()))
+		int frames = road.checkParry(player);
+		if (frames > 0)
 		{
-			player.setInvicible();
+			player.setInvicible(frames);
 		}
 	}
 

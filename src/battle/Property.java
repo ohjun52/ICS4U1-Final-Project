@@ -20,7 +20,7 @@ public class Property
 	
 	public void setInvicible(int frame)
 	{
-		if(invincibleTimer <= 0) invincibleTimer = frame;
+		invincibleTimer = frame;
 	}
 
 	public void calculateDamage(int damage)

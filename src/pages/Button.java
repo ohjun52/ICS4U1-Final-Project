@@ -37,7 +37,7 @@ public class Button
         p.rect(x, y, width, height);
 
         // Draw text label centered in the button
-        p.fill(0); // Black text
+        p.fill(0);
         p.textAlign(PApplet.CENTER, PApplet.CENTER);
         p.textSize(20);
 		

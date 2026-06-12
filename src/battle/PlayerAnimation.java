@@ -13,7 +13,7 @@ public class PlayerAnimation
 	final static private String MOVE_PATH = "animations/move.png";
 	final static private int MOVE_FRAMES = 61;
 
-	final static private int FRAME_DELAY = 4;
+	final static private int FRAME_DELAY = 5;
 
 	private PApplet p;
 	private PImage idleSheet;
@@ -36,22 +36,19 @@ public class PlayerAnimation
 		this.frameTimer = 0;
 		this.hasImages = false;
 
-		try
+		try { idleSheet = p.loadImage(IDLE_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + IDLE_PATH); idleSheet = null; }
+
+		try { moveSheet = p.loadImage(MOVE_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + MOVE_PATH); moveSheet = null; }
+
+		if (idleSheet != null && moveSheet != null && idleSheet.width > 0 && moveSheet.width > 0)
 		{
-			idleSheet = p.loadImage(IDLE_PATH);
-			moveSheet = p.loadImage(MOVE_PATH);
-			if (idleSheet != null && moveSheet != null && idleSheet.width > 0 && moveSheet.width > 0)
-			{
-				hasImages = true;
-				idleFrameWidth = idleSheet.width / IDLE_FRAMES;
-				idleFrameHeight = idleSheet.height;
-				moveFrameWidth = moveSheet.width / MOVE_FRAMES;
-				moveFrameHeight = moveSheet.height;
-			}
-		}
-		catch (Exception e)
-		{
-			hasImages = false;
+			hasImages = true;
+			idleFrameWidth = idleSheet.width / IDLE_FRAMES;
+			idleFrameHeight = idleSheet.height;
+			moveFrameWidth = moveSheet.width / MOVE_FRAMES;
+			moveFrameHeight = moveSheet.height;
 		}
 	}
 
