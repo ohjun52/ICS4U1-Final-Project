@@ -96,7 +96,7 @@ public class Road
 		return !(last.getDisplayY() < 0 && last.getDisplayY() + last.getDisplayH() > -newH);
 	}
 
-	// 遍历本列所有障碍物，返回第一个碰撞的无敌帧数
+	// 遍历本列所有障碍物，返回第一个碰撞的无敌帧数，碰撞的障碍物直接消失
 	public int checkCollision(Player player)
 	{
 		int lane = player.getLane();
@@ -105,7 +105,10 @@ public class Road
 		{
 			if (o.isParried()) continue;
 			if (rectOverlap(px, py, pw, ph, o.getX(), o.getY(), o.getW(), o.getH()))
+			{
+				o.parry();
 				return o.framesToPass(ph);
+			}
 		}
 		return 0;
 	}
