@@ -10,21 +10,21 @@ import pages.*;
  *
  * @author ohjun
  */
-public class StartPage extends Page
+public class EndPage extends Page
 {
-	static final String BACKGROUND_PATH = "background/start.png";
+	static final String BACKGROUND_PATH = "background/end.png";
 	static final float BUTTON_W_RATIO = 0.2f;
 	static final float BUTTON_H_RATIO = 0.1f;
-	static final float BUTTON_Y_RATIO = 0.75f;
+	static final float BUTTON_X_RATIO = 0.75f;
+	static final float BUTTON_Y_RATIO = 0.85f;
 
-	public StartPage(PApplet p)
+	public EndPage(PApplet p)
 	{
 		super(p);
 		float bw = p.width * BUTTON_W_RATIO;
 		float bh = p.height * BUTTON_H_RATIO;
-		float bx = (p.width - bw) / 2;
 		this.setBackground(BACKGROUND_PATH);
-		this.addButton(new Button(bx, p.height * BUTTON_Y_RATIO, bw, bh, "CONTINUE"));
+		this.addButton(new Button(p.width * BUTTON_X_RATIO, p.height * BUTTON_Y_RATIO, bw, bh, "CONTINUE"));
 	}
 
 	public void run()
@@ -37,7 +37,7 @@ public class StartPage extends Page
 		String action = this.handleMouseReleased();
 		if (action.equals("CONTINUE"))
 		{
-			GameMain.currentState = GameMain.Gamestate.BATTLE;
+			GameMain.currentState = GameMain.Gamestate.TITLE;
 		}
 	}
 }

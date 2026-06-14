@@ -7,16 +7,16 @@ import java.util.Iterator;
 public class Road
 {
 	final static private float INITIAL_DIFFICULTY = 1.0f;
-	final static private float DIFFICULTY_RATE = 0.002f;
+	final static private float DIFFICULTY_RATE = 0.002f;		// ~2.8分钟到最高难度
 	final static private float MAX_DIFFICULTY = 4.0f;
-	final static private float BASE_SPAWN_INTERVAL = 60;
-	final static private float MIN_SPAWN_INTERVAL = 15;
+	final static private float BASE_SPAWN_INTERVAL = 90;		// 起始 1.5s 间隔
+	final static private float MIN_SPAWN_INTERVAL = 25;			// 最快 0.42s 间隔
 	final static private float BASE_OBSTACLE_HEIGHT = 30;
-	final static private float HEIGHT_SCALE = 15;
-	final static private float MAX_OBSTACLE_HEIGHT = 80;
-	final static private float BASE_SPEED = 5;
-	final static private float SPEED_SCALE = 0.5f;
-	final static private float MAX_SPEED = 10;
+	final static private float HEIGHT_SCALE = 8;
+	final static private float MAX_OBSTACLE_HEIGHT = 65;
+	final static private float BASE_SPEED = 3;
+	final static private float SPEED_SCALE = 1.2f;
+	final static private float MAX_SPEED = 8;
 
 	private PApplet p;
 	private ArrayDeque<Obstacle>[] lanes;

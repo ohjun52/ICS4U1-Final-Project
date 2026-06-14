@@ -21,6 +21,7 @@ public class SoundManager
 			AudioInputStream stream = AudioSystem.getAudioInputStream(new File(path));
 			Clip clip = AudioSystem.getClip();
 			clip.open(stream);
+			stream.close();
 			return clip;
 		}
 		catch (Exception e)

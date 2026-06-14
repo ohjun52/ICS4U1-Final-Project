@@ -39,7 +39,15 @@ public class Battle
 
 	public void update()
 	{
-		if (gameOver) return;
+		if (gameOver)
+		{
+			player.update();
+			if (player.isDeathAnimationFinished())
+			{
+					GameMain.currentState = GameMain.Gamestate.TITLE;
+			}
+			return;
+		}
 
 		road.update();
 		player.update();
@@ -51,24 +59,23 @@ public class Battle
 			player.takeDamage(10, collisionFrames);
 		}
 
-		// 游戏结束判定：死亡直接回标题，剧情达标进 END 页
 		if (player.isDead())
 		{
 			gameOver = true;
 			win = false;
-			GameMain.currentState = GameMain.Gamestate.TITLE;
+			sound.stopBGM();
 		}
 		else if (mode == GameConfig.GameMode.STORY && score.getDistance() >= GameConfig.STORY_TARGET)
 		{
 			gameOver = true;
 			win = true;
-			GameMain.currentState = GameMain.Gamestate.TITLE;
+			sound.stopBGM();
+			GameMain.currentState = GameMain.Gamestate.END;
 		}
 	}
 
 	public boolean isGameOver() { return gameOver; }
 	public boolean isWin() { return win; }
-	public int getScore() { return score.getDistance(); }
 
 	public void draw()
 	{

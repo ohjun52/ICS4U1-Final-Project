@@ -6,8 +6,8 @@ public class HUD
 {
 	final static private float BAR_W_RATIO = 0.2f;
 	final static private float BAR_H_RATIO = 0.02f;
-	final static private float X_RATIO = 0.015f;
-	final static private float Y_RATIO = 0.015f;
+	final static private float X_RATIO = 0.03f;
+	final static private float Y_RATIO = 0.03f;
 	final static private float GAP_RATIO = 0.02f;
 	final static private float TEXT_SMALL_RATIO = 0.015f;
 	final static private float TEXT_BIG_RATIO = 0.03f;
@@ -56,8 +56,6 @@ public class HUD
 
 		float hpW = barW * player.getHP() / (float) maxHp;
 		float shW = barW * player.getSH() / (float) maxSh;
-		float textX = x + pad;
-		float textBaseY = (barH + textSmall * 0.35f) / 2;
 
 		p.noStroke();
 
@@ -78,7 +76,7 @@ public class HUD
 
 		p.textSize(textBig);
 		p.textAlign(PApplet.RIGHT, PApplet.TOP);
-		p.text(score.getDistance() + " m", scoreX, scoreY);
+		p.text(score.getDistance() + " km", scoreX, scoreY);
 		p.textAlign(PApplet.LEFT, PApplet.TOP);
 	}
 }

@@ -24,8 +24,7 @@ public class PlayerAnimation
 
 	final static int FRAME_DELAY = 5;
 
-	// 每个状态相对显示区域的偏移（比例），用于对齐不同精灵图在帧内的角色位置
-	final static private float[] OFFSET_X = {0, 0, 0, 0, 0};	// IDLE, MOVING, HIT, PARRY, DEATH
+	final static private float[] OFFSET_X = {0, 0, 0, 0, 0};
 	final static private float[] OFFSET_Y = {-0.08f, 0, 0, 0, -0.08f};
 
 	private PApplet p;
@@ -35,7 +34,7 @@ public class PlayerAnimation
 	private int hitFrameWidth, hitFrameHeight;
 	private int parryFrameWidth, parryFrameHeight;
 	private int deathFrameWidth, deathFrameHeight;
-	
+
 	private boolean hasImages;
 
 	private int state;
@@ -67,16 +66,16 @@ public class PlayerAnimation
 		try { deathSheet = p.loadImage(DEATH_PATH); }
 		catch (Exception e) { System.err.println("Failed to load: " + DEATH_PATH); deathSheet = null; }
 
-		if (idleSheet != null && moveSheet != null
-			&& idleSheet.width > 0 && moveSheet.width > 0)
+		if (idleSheet != null && idleSheet.width > 0)
 		{
-			hasImages = true;
 			idleFrameWidth = idleSheet.width / IDLE_FRAMES;
 			idleFrameHeight = idleSheet.height;
+		}
+		if (moveSheet != null && moveSheet.width > 0)
+		{
 			moveFrameWidth = moveSheet.width / MOVE_FRAMES;
 			moveFrameHeight = moveSheet.height;
 		}
-
 		if (hitSheet != null && hitSheet.width > 0)
 		{
 			hitFrameWidth = hitSheet.width / HIT_FRAMES;
@@ -92,6 +91,9 @@ public class PlayerAnimation
 			deathFrameWidth = deathSheet.width / DEATH_FRAMES;
 			deathFrameHeight = deathSheet.height;
 		}
+
+		hasImages = idleSheet != null && moveSheet != null
+			&& hitSheet != null && parrySheet != null && deathSheet != null;
 	}
 
 	public void setState(int state)
@@ -108,7 +110,6 @@ public class PlayerAnimation
 
 	public int getState() { return state; }
 
-	// 强制从头重播当前动画，用于连续受击/跨跃
 	public void restart()
 	{
 		this.currentFrame = 0;
@@ -129,18 +130,16 @@ public class PlayerAnimation
 		{
 			frameTimer = 0;
 			int frames = frameCount();
-			if (looped) return;						// 一次性动画播完停在最后一帧
+			if (looped) return;
 
 			currentFrame++;
 			if (currentFrame >= frames)
 			{
 				if (state == IDLE || state == MOVING)
-				{
-					currentFrame = 0;				// 循环
-				}
+					currentFrame = 0;
 				else
 				{
-					currentFrame = frames - 1;		// 一次性，停在最后一帧
+					currentFrame = frames - 1;
 					looped = true;
 				}
 			}
@@ -159,11 +158,9 @@ public class PlayerAnimation
 		}
 	}
 
-	// invincibleType: 0=无, 1=受伤无敌, 2=跨跃无敌
-	public void draw(float x, float y, float w, float h, int invincibleType)
+	public void draw(float x, float y, float w, float h, boolean invincible)
 	{
-		// 受伤无敌：闪烁；跨跃无敌：不闪烁
-		if (invincibleType == 1 && p.frameCount % 6 < 3) return;
+		if (invincible && p.frameCount % 6 < 3) return;
 
 		float ox = w * OFFSET_X[state];
 		float oy = h * OFFSET_Y[state];
@@ -185,11 +182,7 @@ public class PlayerAnimation
 				case HIT:    p.fill(255, 80, 80);   break;
 				case PARRY:  p.fill(255, 255, 80);  break;
 				case MOVING: p.fill(255, 200, 0);   break;
-				default:
-					if (invincibleType == 2)      p.fill(100, 255, 100);	// 跨跃无敌绿
-					else if (invincibleType == 1) p.fill(255, 255, 80);	// 受伤无敌黄
-					else                          p.fill(0, 255, 255);
-					break;
+				default:     p.fill(invincible ? 255 : 0, 255, 255); break;
 			}
 			p.rect(x + ox, y + oy, w, h);
 		}

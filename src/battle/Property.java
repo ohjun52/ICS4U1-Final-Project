@@ -2,9 +2,9 @@ package battle;
 
 public class Property
 {
-	final static int INITIAL_HP = 100;
+	final static int INITIAL_HP = 60;
 	final static int INITIAL_SH = 0;
-	final static int MAX_SH = 50;
+	final static int MAX_SH = 20;
 	final static private int SH_REGEN_INTERVAL = 60;
 
 	private int HP;

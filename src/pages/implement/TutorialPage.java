@@ -10,14 +10,14 @@ import pages.*;
  *
  * @author ohjun
  */
-public class StartPage extends Page
+public class TutorialPage extends Page
 {
-	static final String BACKGROUND_PATH = "background/start.png";
+	static final String BACKGROUND_PATH = "background/tutorial.png";
 	static final float BUTTON_W_RATIO = 0.2f;
 	static final float BUTTON_H_RATIO = 0.1f;
 	static final float BUTTON_Y_RATIO = 0.75f;
 
-	public StartPage(PApplet p)
+	public TutorialPage(PApplet p)
 	{
 		super(p);
 		float bw = p.width * BUTTON_W_RATIO;

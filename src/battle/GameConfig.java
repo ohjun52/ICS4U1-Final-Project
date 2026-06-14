@@ -9,5 +9,5 @@ public class GameConfig
 
 	public enum GameMode { STORY, ENDLESS }
 
-	final static public int STORY_TARGET = 500;		// 剧情模式目标分数
+	final static public int STORY_TARGET = 100;		// 剧情模式目标分数
 }

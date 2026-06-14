@@ -16,10 +16,11 @@ public class GameMain extends PApplet {
     }
 	public static Gamestate currentState = Gamestate.TITLE;
 	public static GameConfig.GameMode selectedMode = GameConfig.GameMode.ENDLESS;
-	public static int lastScore = 0;
 
 	private TitlePage titlePage;
 	private StartPage startPage;
+	private TutorialPage tutorialPage;
+	private EndPage endPage;
 	private Battle battle;
 
 	@Override
@@ -37,6 +38,8 @@ public class GameMain extends PApplet {
 
 		titlePage = new TitlePage(this);
 		startPage = new StartPage(this);
+		tutorialPage = new TutorialPage(this);
+		endPage = new EndPage(this);
     }
 
 	@Override
@@ -46,13 +49,14 @@ public class GameMain extends PApplet {
 		switch(currentState)
 		{
 			case TITLE:
+				battle = null;
 				titlePage.run();
 				break;
 			case START:
 				startPage.run();
 				break;
 			case TUTORIAL:
-
+				tutorialPage.run();
 				break;
 			case BATTLE:
 				if (battle == null) battle = new Battle(this, selectedMode);
@@ -60,7 +64,7 @@ public class GameMain extends PApplet {
 				battle.draw();
 				break;
 			case END:
-
+				endPage.run();
 				break;
 			case EXIT:
 				exit();
@@ -85,9 +89,12 @@ public class GameMain extends PApplet {
 	}
 
 	@Override
-	public void mouseReleased() {
-		if (mouseButton == LEFT) {
-			switch (currentState) {
+	public void mouseReleased() 
+	{
+		if (mouseButton == LEFT) 
+		{
+			switch (currentState) 
+			{
 				case TITLE:
 					titlePage.getMouseReleased();
 					break;
@@ -95,10 +102,10 @@ public class GameMain extends PApplet {
 					startPage.getMouseReleased();
 					break;
 				case TUTORIAL:
-
+					tutorialPage.getMouseReleased();
 					break;
 				case END:
-
+					endPage.getMouseReleased();
 					break;
 				default:
 					break;

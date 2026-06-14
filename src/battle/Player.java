@@ -30,7 +30,6 @@ public class Player
 	private int hitTimer;			// 受击动画剩余帧
 	private int parryTimer;			// 跨跃动画剩余帧
 	private boolean dead;			// 死亡标记，锁定 DEATH 状态
-	private int invincSource;		// 无敌来源: 0=无, 1=受伤, 2=跨跃
 
 	public Player(PApplet p)
 	{
@@ -54,7 +53,6 @@ public class Player
 		hitTimer = 0;
 		parryTimer = 0;
 		dead = false;
-		invincSource = 0;
 	}
 
 	public void setLane(int lane)
@@ -105,24 +103,26 @@ public class Player
 		property.calculateDamage(damage);
 		property.setInvicible(invincibleFrames);
 		hitTimer = PlayerAnimation.HIT_FRAMES * PlayerAnimation.FRAME_DELAY;
-		invincSource = 1;
 		animation.restart();
 
-		if (property.getHP() <= 0)
-			dead = true;
+		if (property.getHP() <= 0) dead = true;
 	}
 
 	public void doParry()
 	{
 		if (dead) return;
 		parryTimer = PlayerAnimation.PARRY_FRAMES * PlayerAnimation.FRAME_DELAY;
-		invincSource = 2;
 		animation.restart();
 	}
 
 	public boolean isDead()
 	{
 		return dead;
+	}
+
+	public boolean isDeathAnimationFinished()
+	{
+		return dead && animation.isFinished();
 	}
 
 	public float getX() { return displayX + (displayW - colW) / 2; }
@@ -141,8 +141,7 @@ public class Player
 
 	public void draw()
 	{
-		int invType = property.isInvincible() ? invincSource : 0;
-		animation.draw(displayX, displayY, displayW, displayH, invType);
+		animation.draw(displayX, displayY, displayW, displayH, property.isInvincible());
 	}
 	
 	// 调试：碰撞箱+血量护甲
