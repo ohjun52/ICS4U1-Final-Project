@@ -6,4 +6,8 @@ package battle;
 public class GameConfig
 {
 	final static public int LANE_COUNT = 5;
+
+	public enum GameMode { STORY, ENDLESS }
+
+	final static public int STORY_TARGET = 500;		// 剧情模式目标分数
 }

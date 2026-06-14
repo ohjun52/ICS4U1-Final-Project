@@ -8,12 +8,15 @@ public class Road
 {
 	final static private float INITIAL_DIFFICULTY = 1.0f;
 	final static private float DIFFICULTY_RATE = 0.002f;
+	final static private float MAX_DIFFICULTY = 4.0f;
 	final static private float BASE_SPAWN_INTERVAL = 60;
 	final static private float MIN_SPAWN_INTERVAL = 15;
 	final static private float BASE_OBSTACLE_HEIGHT = 30;
 	final static private float HEIGHT_SCALE = 15;
+	final static private float MAX_OBSTACLE_HEIGHT = 80;
 	final static private float BASE_SPEED = 5;
 	final static private float SPEED_SCALE = 0.5f;
+	final static private float MAX_SPEED = 10;
 
 	private PApplet p;
 	private ArrayDeque<Obstacle>[] lanes;
@@ -37,6 +40,7 @@ public class Road
 	public void update()
 	{
 		difficulty += DIFFICULTY_RATE;
+		if (difficulty > MAX_DIFFICULTY) difficulty = MAX_DIFFICULTY;
 
 		float spawnInterval = BASE_SPAWN_INTERVAL / difficulty;
 		if (spawnInterval < MIN_SPAWN_INTERVAL) spawnInterval = MIN_SPAWN_INTERVAL;
@@ -63,35 +67,67 @@ public class Road
 
 	private void addObstacle()
 	{
-		int lane = (int) (Math.random() * GameConfig.LANE_COUNT);
-		float x = lane * laneWidth;
-		float w = laneWidth;
 		float h = BASE_OBSTACLE_HEIGHT + difficulty * HEIGHT_SCALE;
+		if (h > MAX_OBSTACLE_HEIGHT) h = MAX_OBSTACLE_HEIGHT;
 		float speed = BASE_SPEED + difficulty * SPEED_SCALE;
-		lanes[lane].add(new Obstacle(p, w, h, x, speed));
+		if (speed > MAX_SPEED) speed = MAX_SPEED;
+		float w = laneWidth;
+
+		// 尝试随机轨道，跳过已有障碍物未完全入场的轨道，避免重叠
+		int tries = GameConfig.LANE_COUNT * 2;
+		while (tries-- > 0)
+		{
+			int lane = (int) (Math.random() * GameConfig.LANE_COUNT);
+			float x = lane * laneWidth;
+			if (canSpawn(lane, h))
+			{
+				lanes[lane].add(new Obstacle(p, w, h, x, speed));
+				return;
+			}
+		}
+		// 所有轨道都被占用，放弃本次生成
 	}
 
+	// 只检查队列末尾（最新生成的块），前面的块入队更早必然已下落更远
+	private boolean canSpawn(int lane, float newH)
+	{
+		Obstacle last = lanes[lane].peekLast();
+		if (last == null || last.isParried()) return true;
+		return !(last.getDisplayY() < 0 && last.getDisplayY() + last.getDisplayH() > -newH);
+	}
+
+	// 遍历本列所有障碍物，返回第一个碰撞的无敌帧数
 	public int checkCollision(Player player)
 	{
 		int lane = player.getLane();
-		Obstacle o = lanes[lane].peekFirst();
-		if (o == null) return 0;
-		if (rectOverlap(player.getX(), player.getY(), player.getW(), player.getH(), o.getX(), o.getY(), o.getW(), o.getH()))
-			return o.framesToPass(player.getH());
+		float px = player.getX(), py = player.getY(), pw = player.getW(), ph = player.getH();
+		for (Obstacle o : lanes[lane])
+		{
+			if (o.isParried()) continue;
+			if (rectOverlap(px, py, pw, ph, o.getX(), o.getY(), o.getW(), o.getH()))
+				return o.framesToPass(ph);
+		}
 		return 0;
 	}
 
-	public int checkParry(Player player)
+	// 跨跃判定：遍历所有障碍物，跨跃全部匹配的（障碍物直接消失）
+	public boolean checkParry(Player player)
 	{
 		int lane = player.getLane();
-		Obstacle o = lanes[lane].peekFirst();
-		if (o == null || o.isParried()) return 0;
-		if (rectOverlap(player.getX(), player.getY(), player.getW(), player.getH(), o.getParryX(), o.getParryY(), o.getParryW(), o.getParryH()))
+		float py = player.getY();
+		float px = player.getX();
+		float pw = player.getW();
+		boolean parried = false;
+		for (Obstacle o : lanes[lane])
 		{
-			o.parry();
-			return o.framesToPass(player.getH());
+			if (o.isParried()) continue;
+			if (py >= o.getParryY() && py <= o.getParryY() + o.getParryH() && px < o.getParryX() + o.getParryW() && px + pw > o.getParryX())
+			{
+				o.parry();
+				parried = true;
+			}
 		}
-		return 0;
+		return parried;
 	}
 
 	private boolean rectOverlap(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)

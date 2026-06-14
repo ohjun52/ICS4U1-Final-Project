@@ -7,11 +7,11 @@ public class Obstacle
 {
 	final static private String IMAGE_PREFIX = "animations/obstacles/obstacle_";
 	final static private int IMAGE_COUNT = 5;
-	
-	final static private float COLLISION_WIDTH_RATIO = 1f;		// 碰撞箱宽度占显示宽度比例
-	final static private float COLLISION_HEIGHT_RATIO = 0.7f;		// 碰撞箱高度占显示高度比例
-	final static private float PARRY_WIDTH_RATIO = 0.8f;		// 跨跃判定宽度占显示宽度比例
-	final static private float PARRY_HEIGHT_RATIO = 0.2f;		// 跨跃判定高度占显示高度比例（障碍物上方窄带）
+
+	final static private float COLLISION_WIDTH_RATIO = 1f;
+	final static private float COLLISION_HEIGHT_RATIO = 0.7f;
+	final static private float PARRY_WIDTH_RATIO = 1f;
+	final static private float PARRY_HEIGHT_RATIO = 0.06f;
 
 	private static PImage[] obstacleImgs;
 	private static boolean imagesLoaded = false;
@@ -23,6 +23,10 @@ public class Obstacle
 	private PImage img;
 	private boolean parried;
 
+	// 预计算的碰撞箱/跨跃判定箱常量（不随 y 变化）
+	private float colW, colH, colX;
+	private float parryW, parryH, parryX;
+
 	public Obstacle(PApplet p, float w, float h, float x, float speed)
 	{
 		this.p = p;
@@ -32,6 +36,14 @@ public class Obstacle
 		this.y = -h;
 		this.speed = speed;
 		this.parried = false;
+
+		// 预计算固定偏移
+		colW = w * COLLISION_WIDTH_RATIO;
+		colH = h * COLLISION_HEIGHT_RATIO;
+		colX = x + (w - colW) / 2;
+		parryW = w * PARRY_WIDTH_RATIO;
+		parryH = p.height * PARRY_HEIGHT_RATIO;
+		parryX = x + (w - parryW) / 2;
 
 		if (!imagesLoaded)
 		{
@@ -55,90 +67,40 @@ public class Obstacle
 
 	public void draw()
 	{
-		if (img != null)
-		{
-			p.image(img, x, y, w, h);
-		}
-		else
-		{
-			p.fill(255, 0, 0);
-			p.noStroke();
-			p.rect(x, y, w, h);
-		}
+		if (img != null) p.image(img, x, y, w, h);
+		else { p.fill(255, 0, 0); p.noStroke(); p.rect(x, y, w, h); }
 	}
 
-	public boolean isOffScreen(float screenHeight)
-	{
-		return y - h > screenHeight;
-	}
+	public boolean isOffScreen(float screenHeight) { return y - h > screenHeight; }
 
-	public float getX()
-	{
-		return x + (w - w * COLLISION_WIDTH_RATIO) / 2;
-	}
+	float getDisplayY() { return y; }
+	float getDisplayH() { return h; }
 
-	public float getY()
-	{
-		return y + (h - h * COLLISION_HEIGHT_RATIO) / 2;
-	}
+	public float getX() { return colX; }
+	public float getY() { return y + (h - colH) / 2; }
+	public float getW() { return colW; }
+	public float getH() { return colH; }
 
-	public float getW()
-	{
-		return w * COLLISION_WIDTH_RATIO;
-	}
-
-	public float getH()
-	{
-		return h * COLLISION_HEIGHT_RATIO;
-	}
-
-	public float getParryX()
-	{
-		return x + (w - w * PARRY_WIDTH_RATIO) / 2;
-	}
-
-	public float getParryY()
-	{
-		return y + h;
-	}
-
-	public float getParryW()
-	{
-		return w * PARRY_WIDTH_RATIO;
-	}
-
-	public float getParryH()
-	{
-		return h * PARRY_HEIGHT_RATIO;
-	}
+	public float getParryX() { return parryX; }
+	public float getParryY() { return y + h; }
+	public float getParryW() { return parryW; }
+	public float getParryH() { return parryH; }
 
 	public int framesToPass(float playerCollisionH)
 	{
-		return speed > 0 ? (int)((playerCollisionH + getH()) / speed) : 0;
+		return speed > 0 ? (int)((playerCollisionH + colH) / speed) : 0;
 	}
 
-	public void parry()
-	{
-		parried = true;
-	}
+	public void parry() { parried = true; }
+	public boolean isParried() { return parried; }
+	public void setSpeed(float speed) { this.speed = speed; }
 
-	public boolean isParried()
-	{
-		return parried;
-	}
-
-	// 调试：碰撞箱+跨跃判定区
 	public void drawDebug()
 	{
 		p.noFill();
 		p.stroke(255, 0, 0);
-		p.rect(getX(), getY(), getW(), getH());
+		p.rect(getX(), getY(), colW, colH);
 		p.stroke(255, 255, 0);
-		p.rect(getParryX(), getParryY(), getParryW(), getParryH());
-	}
-
-	public void setSpeed(float speed)
-	{
-		this.speed = speed;
+		p.rect(parryX, getParryY(), parryW, parryH);
 	}
 }

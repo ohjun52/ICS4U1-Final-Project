@@ -2,20 +2,38 @@ package battle;
 
 public class Property
 {
+	final static int INITIAL_HP = 100;
+	final static int INITIAL_SH = 0;
+	final static int MAX_SH = 50;
+	final static private int SH_REGEN_INTERVAL = 60;
+
 	private int HP;
 	private int SH;
 	private int invincibleTimer;
+	private int regenTimer;
 
-	public Property(int HP, int SH)
+	public Property()
 	{
-		this.HP = HP;
-		this.SH = SH;
+		this.HP = INITIAL_HP;
+		this.SH = INITIAL_SH;
 		this.invincibleTimer = 0;
+		this.regenTimer = 0;
 	}
 
 	public void update()
 	{
 		if (invincibleTimer > 0) invincibleTimer--;
+		regenShield();
+	}
+
+	private void regenShield()
+	{
+		regenTimer++;
+		if (regenTimer >= SH_REGEN_INTERVAL)
+		{
+			regenTimer = 0;
+			if (SH < MAX_SH) SH++;
+		}
 	}
 	
 	public void setInvicible(int frame)

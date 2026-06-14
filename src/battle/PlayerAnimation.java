@@ -7,26 +7,41 @@ public class PlayerAnimation
 {
 	final static public int IDLE = 0;
 	final static public int MOVING = 1;
+	final static public int HIT = 2;
+	final static public int PARRY = 3;
+	final static public int DEATH = 4;
 
 	final static private String IDLE_PATH = "animations/run.png";
 	final static private int IDLE_FRAMES = 12;
 	final static private String MOVE_PATH = "animations/move.png";
 	final static private int MOVE_FRAMES = 61;
+	final static private String HIT_PATH = "animations/hit.png";
+	final static int HIT_FRAMES = 6;
+	final static private String PARRY_PATH = "animations/parry.png";
+	final static int PARRY_FRAMES = 11;
+	final static private String DEATH_PATH = "animations/death.png";
+	final static private int DEATH_FRAMES = 10;
 
-	final static private int FRAME_DELAY = 5;
+	final static int FRAME_DELAY = 5;
+
+	// 每个状态相对显示区域的偏移（比例），用于对齐不同精灵图在帧内的角色位置
+	final static private float[] OFFSET_X = {0, 0, 0, 0, 0};	// IDLE, MOVING, HIT, PARRY, DEATH
+	final static private float[] OFFSET_Y = {-0.08f, 0, 0, 0, -0.08f};
 
 	private PApplet p;
-	private PImage idleSheet;
-	private PImage moveSheet;
-	private int idleFrameWidth;
-	private int idleFrameHeight;
-	private int moveFrameWidth;
-	private int moveFrameHeight;
+	private PImage idleSheet, moveSheet, hitSheet, parrySheet, deathSheet;
+	private int idleFrameWidth, idleFrameHeight;
+	private int moveFrameWidth, moveFrameHeight;
+	private int hitFrameWidth, hitFrameHeight;
+	private int parryFrameWidth, parryFrameHeight;
+	private int deathFrameWidth, deathFrameHeight;
+	
 	private boolean hasImages;
 
 	private int state;
 	private int currentFrame;
 	private int frameTimer;
+	private boolean looped;
 
 	public PlayerAnimation(PApplet p)
 	{
@@ -35,6 +50,7 @@ public class PlayerAnimation
 		this.currentFrame = 0;
 		this.frameTimer = 0;
 		this.hasImages = false;
+		this.looped = false;
 
 		try { idleSheet = p.loadImage(IDLE_PATH); }
 		catch (Exception e) { System.err.println("Failed to load: " + IDLE_PATH); idleSheet = null; }
@@ -42,7 +58,17 @@ public class PlayerAnimation
 		try { moveSheet = p.loadImage(MOVE_PATH); }
 		catch (Exception e) { System.err.println("Failed to load: " + MOVE_PATH); moveSheet = null; }
 
-		if (idleSheet != null && moveSheet != null && idleSheet.width > 0 && moveSheet.width > 0)
+		try { hitSheet = p.loadImage(HIT_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + HIT_PATH); hitSheet = null; }
+
+		try { parrySheet = p.loadImage(PARRY_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + PARRY_PATH); parrySheet = null; }
+
+		try { deathSheet = p.loadImage(DEATH_PATH); }
+		catch (Exception e) { System.err.println("Failed to load: " + DEATH_PATH); deathSheet = null; }
+
+		if (idleSheet != null && moveSheet != null
+			&& idleSheet.width > 0 && moveSheet.width > 0)
 		{
 			hasImages = true;
 			idleFrameWidth = idleSheet.width / IDLE_FRAMES;
@@ -50,19 +76,50 @@ public class PlayerAnimation
 			moveFrameWidth = moveSheet.width / MOVE_FRAMES;
 			moveFrameHeight = moveSheet.height;
 		}
+
+		if (hitSheet != null && hitSheet.width > 0)
+		{
+			hitFrameWidth = hitSheet.width / HIT_FRAMES;
+			hitFrameHeight = hitSheet.height;
+		}
+		if (parrySheet != null && parrySheet.width > 0)
+		{
+			parryFrameWidth = parrySheet.width / PARRY_FRAMES;
+			parryFrameHeight = parrySheet.height;
+		}
+		if (deathSheet != null && deathSheet.width > 0)
+		{
+			deathFrameWidth = deathSheet.width / DEATH_FRAMES;
+			deathFrameHeight = deathSheet.height;
+		}
 	}
 
 	public void setState(int state)
 	{
-		if (state == IDLE || state == MOVING)
+		if (state < IDLE || state > DEATH) return;
+		if (this.state != state)
 		{
-			if (this.state != state)
-			{
-				this.state = state;
-				this.currentFrame = 0;
-				this.frameTimer = 0;
-			}
+			this.state = state;
+			this.currentFrame = 0;
+			this.frameTimer = 0;
+			this.looped = false;
 		}
+	}
+
+	public int getState() { return state; }
+
+	// 强制从头重播当前动画，用于连续受击/跨跃
+	public void restart()
+	{
+		this.currentFrame = 0;
+		this.frameTimer = 0;
+		this.looped = false;
+	}
+
+	public boolean isFinished()
+	{
+		if (state == IDLE || state == MOVING) return false;
+		return looped;
 	}
 
 	public void update()
@@ -71,44 +128,106 @@ public class PlayerAnimation
 		if (frameTimer >= FRAME_DELAY)
 		{
 			frameTimer = 0;
-			int frames = (state == MOVING) ? MOVE_FRAMES : IDLE_FRAMES;
-			currentFrame = (currentFrame + 1) % frames;
+			int frames = frameCount();
+			if (looped) return;						// 一次性动画播完停在最后一帧
+
+			currentFrame++;
+			if (currentFrame >= frames)
+			{
+				if (state == IDLE || state == MOVING)
+				{
+					currentFrame = 0;				// 循环
+				}
+				else
+				{
+					currentFrame = frames - 1;		// 一次性，停在最后一帧
+					looped = true;
+				}
+			}
 		}
 	}
 
-	public void draw(float x, float y, float w, float h, boolean invincible)
+	private int frameCount()
 	{
-		if (invincible && p.frameCount % 6 < 3) return;
-
-		if (hasImages)
+		switch (state)
 		{
-			if (state == MOVING)
-			{
-				int sx = currentFrame * moveFrameWidth;
-				p.image(moveSheet, x, y, w, h, sx, 0, sx + moveFrameWidth, moveFrameHeight);
-			}
-			else
-			{
-				int sx = currentFrame * idleFrameWidth;
-				p.image(idleSheet, x, y, w, h, sx, 0, sx + idleFrameWidth, idleFrameHeight);
-			}
+			case MOVING: return MOVE_FRAMES;
+			case HIT:    return HIT_FRAMES;
+			case PARRY:  return PARRY_FRAMES;
+			case DEATH:  return DEATH_FRAMES;
+			default:     return IDLE_FRAMES;
+		}
+	}
+
+	// invincibleType: 0=无, 1=受伤无敌, 2=跨跃无敌
+	public void draw(float x, float y, float w, float h, int invincibleType)
+	{
+		// 受伤无敌：闪烁；跨跃无敌：不闪烁
+		if (invincibleType == 1 && p.frameCount % 6 < 3) return;
+
+		float ox = w * OFFSET_X[state];
+		float oy = h * OFFSET_Y[state];
+
+		if (hasImages && sheetForState() != null)
+		{
+			PImage sheet = sheetForState();
+			int fw = frameWidthForState();
+			int fh = frameHeightForState();
+			int sx = currentFrame * fw;
+			p.image(sheet, x + ox, y + oy, w, h, sx, 0, sx + fw, fh);
 		}
 		else
 		{
-			if (invincible)
-			{
-				p.fill(255, 255, 80);
-			}
-			else if (state == MOVING)
-			{
-				p.fill(255, 200, 0);
-			}
-			else
-			{
-				p.fill(0, 255, 255);
-			}
 			p.noStroke();
-			p.rect(x, y, w, h);
+			switch (state)
+			{
+				case DEATH:  p.fill(80, 80, 80);    break;
+				case HIT:    p.fill(255, 80, 80);   break;
+				case PARRY:  p.fill(255, 255, 80);  break;
+				case MOVING: p.fill(255, 200, 0);   break;
+				default:
+					if (invincibleType == 2)      p.fill(100, 255, 100);	// 跨跃无敌绿
+					else if (invincibleType == 1) p.fill(255, 255, 80);	// 受伤无敌黄
+					else                          p.fill(0, 255, 255);
+					break;
+			}
+			p.rect(x + ox, y + oy, w, h);
+		}
+	}
+
+	private PImage sheetForState()
+	{
+		switch (state)
+		{
+			case MOVING: return moveSheet;
+			case HIT:    return hitSheet;
+			case PARRY:  return parrySheet;
+			case DEATH:  return deathSheet;
+			default:     return idleSheet;
+		}
+	}
+
+	private int frameWidthForState()
+	{
+		switch (state)
+		{
+			case MOVING: return moveFrameWidth;
+			case HIT:    return hitFrameWidth;
+			case PARRY:  return parryFrameWidth;
+			case DEATH:  return deathFrameWidth;
+			default:     return idleFrameWidth;
+		}
+	}
+
+	private int frameHeightForState()
+	{
+		switch (state)
+		{
+			case MOVING: return moveFrameHeight;
+			case HIT:    return hitFrameHeight;
+			case PARRY:  return parryFrameHeight;
+			case DEATH:  return deathFrameHeight;
+			default:     return idleFrameHeight;
 		}
 	}
 }

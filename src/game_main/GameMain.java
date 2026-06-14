@@ -2,8 +2,9 @@ package game_main;
 
 import processing.core.PApplet;
 
-import pages.implement.*;
 import battle.Battle;
+import battle.GameConfig;
+import pages.implement.*;
 
 public class GameMain extends PApplet {
 
@@ -14,6 +15,8 @@ public class GameMain extends PApplet {
 		TITLE, START, TUTORIAL, BATTLE, END, EXIT
     }
 	public static Gamestate currentState = Gamestate.TITLE;
+	public static GameConfig.GameMode selectedMode = GameConfig.GameMode.ENDLESS;
+	public static int lastScore = 0;
 
 	private TitlePage titlePage;
 	private StartPage startPage;
@@ -31,10 +34,9 @@ public class GameMain extends PApplet {
     public void setup()
 	{
         frameRate(GAME_FRAME);
-		
+
 		titlePage = new TitlePage(this);
 		startPage = new StartPage(this);
-		battle = new Battle(this);
     }
 
 	@Override
@@ -53,6 +55,7 @@ public class GameMain extends PApplet {
 
 				break;
 			case BATTLE:
+				if (battle == null) battle = new Battle(this, selectedMode);
 				battle.update();
 				battle.draw();
 				break;
