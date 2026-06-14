@@ -1,13 +1,16 @@
 package battle;
 
 /**
- * 共享游戏常量，避免类间直接引用
+ * Shared game constants. Centralised here to avoid cross-class coupling.
  */
 public class GameConfig
 {
+	/** Number of vertical lanes the player can switch between. */
 	final static public int LANE_COUNT = 5;
 
+	/** Win condition for the two supported game modes. */
 	public enum GameMode { STORY, ENDLESS }
 
-	final static public int STORY_TARGET = 180;		// 剧情模式目标分数
+	/** Distance (km) the player must reach to complete story mode. */
+	final static public int STORY_TARGET = 180;
 }

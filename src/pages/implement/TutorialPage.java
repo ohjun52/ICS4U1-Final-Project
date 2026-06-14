@@ -1,20 +1,22 @@
 package pages.implement;
 
-
 import processing.core.PApplet;
 
 import game_main.GameMain;
 import pages.*;
 
 /**
- *
- * @author ohjun
+ * Tutorial / info screen shown after selecting ENDLESS mode.
+ * Player clicks CONTINUE to start the battle.
  */
 public class TutorialPage extends Page
 {
 	static final String BACKGROUND_PATH = "background/tutorial.png";
+	/** Button width as fraction of screen width. */
 	static final float BUTTON_W_RATIO = 0.2f;
+	/** Button height as fraction of screen height. */
 	static final float BUTTON_H_RATIO = 0.1f;
+	/** Y position of the single CONTINUE button (near bottom). */
 	static final float BUTTON_Y_RATIO = 0.75f;
 
 	public TutorialPage(PApplet p)
@@ -27,17 +29,11 @@ public class TutorialPage extends Page
 		this.addButton(new Button(bx, p.height * BUTTON_Y_RATIO, bw, bh, "CONTINUE"));
 	}
 
-	public void run()
-	{
-		this.display();
-	}
+	public void run() { this.display(); }
 
 	public void getMouseReleased()
 	{
-		String action = this.handleMouseReleased();
-		if (action.equals("CONTINUE"))
-		{
+		if (this.handleMouseReleased().equals("CONTINUE"))
 			GameMain.currentState = GameMain.Gamestate.BATTLE;
-		}
 	}
 }

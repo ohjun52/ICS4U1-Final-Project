@@ -2,34 +2,52 @@ package battle;
 
 import processing.core.PApplet;
 
+/**
+ * Player character positioned near the bottom of the screen.
+ *
+ * Occupies one of 5 lanes. Switches lanes with a wind-up + recovery
+ * animation. Collision and parry logic is handled externally by Road.
+ */
 public class Player
 {
+	/** Frames of wind-up before the lane actually switches. */
 	final static private int WIND_UP_FRAMES = 15;
+	/** Frames of recovery after the lane switches (total move = WIND_UP + RECOVERY). */
 	final static private int RECOVERY_FRAMES = 15;
 
-	final static private float WIDTH_RATIO = 0.75f;				// 显示宽度占轨道宽度比例
-	final static private float HEIGHT_RATIO = 0.25f;			// 显示高度占屏幕高度比例
-
-	final static private float COLLISION_WIDTH_RATIO = 0.7f;	// 碰撞箱宽度占显示宽度比例
-	final static private float COLLISION_HEIGHT_RATIO = 0.5f;	// 碰撞箱高度占显示高度比例
-
-	final static private float BOTTOM_MARGIN_RATIO = 0.05f;		// 底部边距占屏幕高度比例
+	/** Display width as fraction of lane width. */
+	final static private float WIDTH_RATIO = 0.75f;
+	/** Display height as fraction of screen height. */
+	final static private float HEIGHT_RATIO = 0.25f;
+	/** Collision box width as fraction of display width. */
+	final static private float COLLISION_WIDTH_RATIO = 0.7f;
+	/** Collision box height as fraction of display height. */
+	final static private float COLLISION_HEIGHT_RATIO = 0.5f;
+	/** Distance from screen bottom as fraction of screen height. */
+	final static private float BOTTOM_MARGIN_RATIO = 0.05f;
 
 	private Property property;
 	private PlayerAnimation animation;
 
+	/** Current lane index (0 = leftmost). */
 	private int lane;
 	private float laneWidth;
+	/** Top-left corner of the visible sprite bounding box. */
 	private float displayX, displayY;
 	private float displayW, displayH;
-	private float colW, colH;		// 碰撞箱预计算
+	/** Precomputed collision box dimensions. */
+	private float colW, colH;
 
+	/** Total movement timer: counts down from WIND_UP + RECOVERY to 0. */
 	private int actionTimer;
+	/** Target lane, applied when actionTimer hits RECOVERY. */
 	private int pendingLane;
 
-	private int hitTimer;			// 受击动画剩余帧
-	private int parryTimer;			// 跨跃动画剩余帧
-	private boolean dead;			// 死亡标记，锁定 DEATH 状态
+	/** Remaining frames for hit/parry animation playback. */
+	private int hitTimer;
+	private int parryTimer;
+	/** True after HP reaches 0 — locks DEATH animation. */
+	private boolean dead;
 
 	public Player(PApplet p)
 	{
@@ -42,8 +60,10 @@ public class Player
 		colW = displayW * COLLISION_WIDTH_RATIO;
 		colH = displayH * COLLISION_HEIGHT_RATIO;
 
-		lane = 2;
+		lane = 2;   // start in centre lane
+		// Centre the sprite horizontally in its lane
 		displayX = lane * laneWidth + (laneWidth - displayW) / 2;
+		// Position near the bottom of the screen
 		displayY = sh - displayH - sh * BOTTOM_MARGIN_RATIO;
 		pendingLane = lane;
 
@@ -55,6 +75,7 @@ public class Player
 		dead = false;
 	}
 
+	/** Queue a lane switch. Ignored if mid-animation or dead. */
 	public void setLane(int lane)
 	{
 		if (dead) return;
@@ -65,16 +86,18 @@ public class Player
 		}
 	}
 
+	/** Advance all timers and update animation state. Called each frame. */
 	public void update()
 	{
-		property.update();
+		property.update();    // tick invincibility + shield regen
 
-		// 所有计时器独立递减，不受视觉状态影响
+		// Decrement independent animation timers
 		if (hitTimer > 0) hitTimer--;
 		if (parryTimer > 0) parryTimer--;
 		if (actionTimer > 0)
 		{
 			actionTimer--;
+			// Switch lane exactly at the recovery point
 			if (actionTimer == RECOVERY_FRAMES)
 			{
 				this.lane = pendingLane;
@@ -82,7 +105,7 @@ public class Player
 			}
 		}
 
-		// 视觉状态优先级：死亡 > 移动 > 跨跃 > 受击 > 待机
+		// Determine visual state (higher priority first)
 		if (dead)
 			animation.setState(PlayerAnimation.DEATH);
 		else if (actionTimer > 0)
@@ -97,17 +120,23 @@ public class Player
 		animation.update();
 	}
 
+	/**
+	 * Called when an obstacle collides with the player.
+	 * @param damage            amount subtracted from HP/SH
+	 * @param invincibleFrames  post-hit invulnerability duration
+	 */
 	public void takeDamage(int damage, int invincibleFrames)
 	{
 		if (dead) return;
-		property.calculateDamage(damage);
-		property.setInvicible(invincibleFrames);
+		property.calculateDamage(damage);           // apply to HP/SH
+		property.setInvicible(invincibleFrames);     // brief immunity
 		hitTimer = PlayerAnimation.HIT_FRAMES * PlayerAnimation.FRAME_DELAY;
-		animation.restart();
+		animation.restart();                         // restart hit anim
 
-		if (property.getHP() <= 0) dead = true;
+		if (property.getHP() <= 0) dead = true;      // trigger death
 	}
 
+	/** Execute a parry — plays animation, no invincibility. */
 	public void doParry()
 	{
 		if (dead) return;
@@ -115,17 +144,17 @@ public class Player
 		animation.restart();
 	}
 
-	public boolean isDead()
-	{
-		return dead;
-	}
+	public boolean isDead() { return dead; }
 
+	/** True when the death animation has finished playing. */
 	public boolean isDeathAnimationFinished()
 	{
 		return dead && animation.isFinished();
 	}
 
+	/** Collision box left edge. */
 	public float getX() { return displayX + (displayW - colW) / 2; }
+	/** Collision box top edge. */
 	public float getY() { return displayY + (displayH - colH) / 2; }
 	public float getW() { return colW; }
 	public float getH() { return colH; }
@@ -134,17 +163,15 @@ public class Player
 	public int getHP() { return property.getHP(); }
 	public int getSH() { return property.getSH(); }
 
-	public void setInvicible(int frames)
-	{
-		property.setInvicible(frames);
-	}
+	public void setInvicible(int frames) { property.setInvicible(frames); }
 
+	/** Draw the player sprite (or fallback rectangle). */
 	public void draw()
 	{
 		animation.draw(displayX, displayY, displayW, displayH, property.isInvincible());
 	}
-	
-	// 调试：碰撞箱+血量护甲
+
+	/** Debug overlay: green collision box + HP/SH text. */
 	public void drawDebug(PApplet p)
 	{
 		p.noFill();

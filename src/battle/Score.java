@@ -1,14 +1,17 @@
 package battle;
 
 /**
- * 路程计分：每隔一段时间分数自动增加
+ * Accumulates distance score over time.
  */
 public class Score
 {
-	final static private int INTERVAL = 30;		// 每隔 N 帧加一次分
-	final static private int INCREMENT = 1;		// 每次加分值
+	/** Number of frames between each score increment (30 = 0.5 sec at 60 fps). */
+	final static private int INTERVAL = 30;
+	/** Points added per tick. */
+	final static private int INCREMENT = 1;
 
 	private int distance;
+	/** Counts frames since last increment. */
 	private int timer;
 
 	public Score()
@@ -17,18 +20,16 @@ public class Score
 		timer = 0;
 	}
 
+	/** Advance timer; add INCREMENT points every INTERVAL frames. */
 	public void update()
 	{
 		timer++;
 		if (timer >= INTERVAL)
 		{
-			timer = 0;
-			distance += INCREMENT;
+			timer = 0;                // reset accumulator
+			distance += INCREMENT;    // 1 km per tick
 		}
 	}
 
-	public int getDistance()
-	{
-		return distance;
-	}
+	public int getDistance() { return distance; }
 }

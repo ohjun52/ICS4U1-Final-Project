@@ -3,14 +3,24 @@ package battle;
 import processing.core.PApplet;
 import processing.core.PImage;
 
+/**
+ * Sprite-sheet animation system with five states.
+ *
+ * Looping states: IDLE (12 frames), MOVING (61 frames).
+ * One-shot states: HIT (6 frames), PARRY (11 frames), DEATH (10 frames).
+ * Frame advancement is throttled by FRAME_DELAY to keep animations at
+ * a readable speed regardless of the 60 fps game loop.
+ */
 public class PlayerAnimation
 {
+	// ---- State constants ----
 	final static public int IDLE = 0;
 	final static public int MOVING = 1;
 	final static public int HIT = 2;
 	final static public int PARRY = 3;
 	final static public int DEATH = 4;
 
+	// ---- Sprite sheet paths and frame counts ----
 	final static private String IDLE_PATH = "animations/run.png";
 	final static private int IDLE_FRAMES = 12;
 	final static private String MOVE_PATH = "animations/move.png";
@@ -22,24 +32,36 @@ public class PlayerAnimation
 	final static private String DEATH_PATH = "animations/death.png";
 	final static private int DEATH_FRAMES = 10;
 
+	/** Game frames to wait before advancing to the next sprite frame. */
 	final static int FRAME_DELAY = 5;
 
+	/**
+	 * Per-state position offsets, as fraction of display size.
+	 * Used to align sprite sheets that have different character positions.
+	 */
 	final static private float[] OFFSET_X = {0, 0, 0, 0, 0};
 	final static private float[] OFFSET_Y = {-0.08f, 0, 0, 0, -0.08f};
 
 	private PApplet p;
+	// Loaded sprite sheets (one per state)
 	private PImage idleSheet, moveSheet, hitSheet, parrySheet, deathSheet;
+	// Pixel dimensions of a single frame in each sheet
 	private int idleFrameWidth, idleFrameHeight;
 	private int moveFrameWidth, moveFrameHeight;
 	private int hitFrameWidth, hitFrameHeight;
 	private int parryFrameWidth, parryFrameHeight;
 	private int deathFrameWidth, deathFrameHeight;
 
+	/** True only if all five sheets loaded without error. */
 	private boolean hasImages;
 
+	/** Current animation state. */
 	private int state;
+	/** Index of the current frame within the sprite sheet. */
 	private int currentFrame;
+	/** Counts up to FRAME_DELAY, then advances frame and resets. */
 	private int frameTimer;
+	/** True after a one-shot animation reaches its last frame. */
 	private boolean looped;
 
 	public PlayerAnimation(PApplet p)
@@ -51,6 +73,7 @@ public class PlayerAnimation
 		this.hasImages = false;
 		this.looped = false;
 
+		// Load each sheet independently; missing sheets → null → fallback rect
 		try { idleSheet = p.loadImage(IDLE_PATH); }
 		catch (Exception e) { System.err.println("Failed to load: " + IDLE_PATH); idleSheet = null; }
 
@@ -66,36 +89,23 @@ public class PlayerAnimation
 		try { deathSheet = p.loadImage(DEATH_PATH); }
 		catch (Exception e) { System.err.println("Failed to load: " + DEATH_PATH); deathSheet = null; }
 
+		// Derive per-frame dimensions from sheet width / frame count
 		if (idleSheet != null && idleSheet.width > 0)
-		{
-			idleFrameWidth = idleSheet.width / IDLE_FRAMES;
-			idleFrameHeight = idleSheet.height;
-		}
+		{ idleFrameWidth = idleSheet.width / IDLE_FRAMES; idleFrameHeight = idleSheet.height; }
 		if (moveSheet != null && moveSheet.width > 0)
-		{
-			moveFrameWidth = moveSheet.width / MOVE_FRAMES;
-			moveFrameHeight = moveSheet.height;
-		}
+		{ moveFrameWidth = moveSheet.width / MOVE_FRAMES; moveFrameHeight = moveSheet.height; }
 		if (hitSheet != null && hitSheet.width > 0)
-		{
-			hitFrameWidth = hitSheet.width / HIT_FRAMES;
-			hitFrameHeight = hitSheet.height;
-		}
+		{ hitFrameWidth = hitSheet.width / HIT_FRAMES; hitFrameHeight = hitSheet.height; }
 		if (parrySheet != null && parrySheet.width > 0)
-		{
-			parryFrameWidth = parrySheet.width / PARRY_FRAMES;
-			parryFrameHeight = parrySheet.height;
-		}
+		{ parryFrameWidth = parrySheet.width / PARRY_FRAMES; parryFrameHeight = parrySheet.height; }
 		if (deathSheet != null && deathSheet.width > 0)
-		{
-			deathFrameWidth = deathSheet.width / DEATH_FRAMES;
-			deathFrameHeight = deathSheet.height;
-		}
+		{ deathFrameWidth = deathSheet.width / DEATH_FRAMES; deathFrameHeight = deathSheet.height; }
 
 		hasImages = idleSheet != null && moveSheet != null
 			&& hitSheet != null && parrySheet != null && deathSheet != null;
 	}
 
+	/** Change animation state. Resets to frame 0 only if the state changes. */
 	public void setState(int state)
 	{
 		if (state < IDLE || state > DEATH) return;
@@ -110,6 +120,7 @@ public class PlayerAnimation
 
 	public int getState() { return state; }
 
+	/** Force the current animation to restart from frame 0. */
 	public void restart()
 	{
 		this.currentFrame = 0;
@@ -117,35 +128,35 @@ public class PlayerAnimation
 		this.looped = false;
 	}
 
+	/** True when a one-shot animation has reached its final frame. */
 	public boolean isFinished()
 	{
-		if (state == IDLE || state == MOVING) return false;
+		if (state == IDLE || state == MOVING) return false;  // these loop forever
 		return looped;
 	}
 
+	/** Advance the frame counter; cycle or freeze depending on state type. */
 	public void update()
 	{
 		frameTimer++;
 		if (frameTimer >= FRAME_DELAY)
 		{
-			frameTimer = 0;
+			frameTimer = 0;                       // reset throttle
 			int frames = frameCount();
-			if (looped) return;
+			if (looped) return;                   // one-shot already finished → stay
 
 			currentFrame++;
-			if (currentFrame >= frames)
+			if (currentFrame >= frames)            // reached end of sheet
 			{
 				if (state == IDLE || state == MOVING)
-					currentFrame = 0;
+					currentFrame = 0;              // loop back to start
 				else
-				{
-					currentFrame = frames - 1;
-					looped = true;
-				}
+				{ currentFrame = frames - 1; looped = true; }  // freeze on last frame
 			}
 		}
 	}
 
+	/** Number of frames in the current state's sprite sheet. */
 	private int frameCount()
 	{
 		switch (state)
@@ -158,10 +169,16 @@ public class PlayerAnimation
 		}
 	}
 
+	/**
+	 * Clip and draw the current sprite frame.
+	 * @param invincible  if true, flicker every 3 frames for visual feedback
+	 */
 	public void draw(float x, float y, float w, float h, boolean invincible)
 	{
+		// Flicker effect: skip drawing every other 3-frame block
 		if (invincible && p.frameCount % 6 < 3) return;
 
+		// Apply per-state position offset
 		float ox = w * OFFSET_X[state];
 		float oy = h * OFFSET_Y[state];
 
@@ -170,24 +187,26 @@ public class PlayerAnimation
 			PImage sheet = sheetForState();
 			int fw = frameWidthForState();
 			int fh = frameHeightForState();
-			int sx = currentFrame * fw;
+			int sx = currentFrame * fw;   // left edge of current frame in sheet
 			p.image(sheet, x + ox, y + oy, w, h, sx, 0, sx + fw, fh);
 		}
 		else
 		{
+			// Fallback: coloured rectangle when images are missing
 			p.noStroke();
 			switch (state)
 			{
-				case DEATH:  p.fill(80, 80, 80);    break;
-				case HIT:    p.fill(255, 80, 80);   break;
-				case PARRY:  p.fill(255, 255, 80);  break;
-				case MOVING: p.fill(255, 200, 0);   break;
-				default:     p.fill(invincible ? 255 : 0, 255, 255); break;
+				case DEATH:  p.fill(80, 80, 80);    break;   // grey
+				case HIT:    p.fill(255, 80, 80);   break;   // red
+				case PARRY:  p.fill(255, 255, 80);  break;   // yellow
+				case MOVING: p.fill(255, 200, 0);   break;   // orange
+				default:     p.fill(invincible ? 255 : 0, 255, 255); break;  // cyan / yellow
 			}
 			p.rect(x + ox, y + oy, w, h);
 		}
 	}
 
+	/** Return the sprite sheet for the current state. */
 	private PImage sheetForState()
 	{
 		switch (state)
@@ -200,6 +219,7 @@ public class PlayerAnimation
 		}
 	}
 
+	/** Pixel width of a single frame in the current state's sheet. */
 	private int frameWidthForState()
 	{
 		switch (state)
@@ -212,6 +232,7 @@ public class PlayerAnimation
 		}
 	}
 
+	/** Pixel height of a single frame in the current state's sheet. */
 	private int frameHeightForState()
 	{
 		switch (state)
