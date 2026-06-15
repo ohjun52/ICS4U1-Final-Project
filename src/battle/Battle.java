@@ -55,10 +55,7 @@ public class Battle
 			player.update();   // let death animation play out
 			if (player.isDeathAnimationFinished())
 			{
-				if (mode == GameConfig.GameMode.STORY)
-					GameMain.currentState = GameMain.Gamestate.END;
-				else
-					GameMain.currentState = GameMain.Gamestate.TITLE;
+				GameMain.currentState = GameMain.Gamestate.TITLE;
 			}
 			return;   // no gameplay updates after game over
 		}

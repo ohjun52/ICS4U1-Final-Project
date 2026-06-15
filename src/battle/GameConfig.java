@@ -12,5 +12,5 @@ public class GameConfig
 	public enum GameMode { STORY, ENDLESS }
 
 	/** Distance (km) the player must reach to complete story mode. */
-	final static public int STORY_TARGET = 180;
+	final static public int STORY_TARGET = 150;
 }
